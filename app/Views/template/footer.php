@@ -1,8 +1,7 @@
-<footer class="text-muted py-3">
-  <div class="container">
-    <div class="col-12 mx-auto text-center">
-      <p class="mb-1">&copy; <?= date('Y') ?> Loteamento. Todos os direitos reservados.</p>
+<footer class="sticky-footer bg-white">
+  <div class="container my-auto">
+    <div class="copyright text-center my-auto">
+      <span>&copy; <?= date('Y') ?> Chacreamento. Todos os direitos reservados.</span>
     </div>
   </div>
 </footer>
-</div>
