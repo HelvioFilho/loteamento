@@ -1,3 +1,16 @@
+<?php
+
+
+function active($uri)
+{
+  $currentUrl = current_url();
+  $splotUrl = explode("/", $currentUrl);
+  $link = $splotUrl[3];
+  return $uri === $link ? 'active' : '';
+}
+
+?>
+
 <!-- Sidebar -->
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
@@ -11,52 +24,30 @@
   <!-- Divider -->
   <hr class="sidebar-divider my-0">
 
-  <!-- Nav Item - Dashboard -->
-  <!-- <li class="nav-item active">
-    <a class="nav-link" href="<?= base_url() ?>">
-      <i class="fas fa-home"></i>
-      <span>Home</span></a>
-  </li> -->
-
-  <!-- Divider -->
-  <!-- <hr class="sidebar-divider"> -->
-
   <!-- Heading -->
   <div class="sidebar-heading mt-3">
     Principal
   </div>
 
-  <!-- Nav Item - Pages Collapse Menu -->
-  <!-- future use
-  <li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-      aria-expanded="true" aria-controls="collapseTwo">
-      <i class="fas fa-fw fa-cog"></i>
-      <span>Components</span>
-    </a>
-    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-      <div class="bg-white py-2 collapse-inner rounded">
-        <h6 class="collapse-header">Custom Components:</h6>
-        <a class="collapse-item" href="buttons.html">Buttons</a>
-        <a class="collapse-item" href="cards.html">Cards</a>
-      </div>
-    </div>
-  </li> -->
-
-  <li class="nav-item active">
+  <li class="nav-item <?= active('user') ?>">
     <a class="nav-link" href="<?= base_url() ?>">
       <i class="fas fa-users"></i>
       <span>Usuários</span></a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="<?= base_url() ?>">
-      <i class="fas fa-users"></i>
+  <li class="nav-item <?= active('dependentes') ?>">
+    <a class="nav-link" href="<?= base_url('dependentes') ?>">
+      <i class="fas fa-user-friends"></i>
       <span>Dependentes</span></a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="<?= base_url() ?>">
-      <i class="fas fa-users"></i>
+  <li class="nav-item <?= active('lotes') ?>">
+    <a class="nav-link" href="<?= base_url('lotes') ?>">
+      <i class="fas fa-map-signs"></i>
       <span>Lotes</span></a>
+  </li>
+  <li class="nav-item <?= active('lista-de-pagamentos') ?>">
+    <a class="nav-link" href="<?= base_url('lista-de-pagamentos') ?>">
+      <i class="far fa-list-alt"></i>
+      <span>Listas</span></a>
   </li>
 
   <!-- Divider -->
@@ -64,22 +55,20 @@
 
   <!-- Heading -->
   <div class="sidebar-heading">
-    Configurações
+    Ajustes
   </div>
-
-
 
   <!-- Nav Item - Charts -->
   <li class="nav-item">
     <a class="nav-link" href="<?= base_url() ?>">
-      <i class="fas fa-fw fa-chart-area"></i>
+      <i class="fas fa-user-cog"></i>
       <span>Minha Conta</span></a>
   </li>
 
   <!-- Nav Item - Tables -->
   <li class="nav-item">
     <a class="nav-link" href="<?= base_url() ?>">
-      <i class="fas fa-fw fa-table"></i>
+      <i class="fas fa-user-plus"></i>
       <span>Criar Conta</span></a>
   </li>
 

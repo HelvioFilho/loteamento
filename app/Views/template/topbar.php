@@ -20,6 +20,14 @@
     </div>
   </form> -->
 
+  <?php
+  $currentUrl = current_url();
+  $splotUrl = explode("/", $currentUrl);
+
+  ?>
+  <?php if (isset($splotUrl[4]) && $splotUrl[4] == 'gerenciar'): ?>
+    <a href="<?= base_url($splotUrl[3]) ?>" class="btn-back mb-3"><i class="fas fa-arrow-left"></i></a>
+  <?php endif; ?>
   <!-- Topbar Navbar -->
   <ul class="navbar-nav ml-auto">
 
@@ -46,8 +54,6 @@
         </form>
       </div>
     </li> -->
-
-
 
     <!-- Nav Item - Messages -->
     <!-- <li class="nav-item dropdown no-arrow mx-1">
@@ -121,9 +127,6 @@
         <i class="fas fa-sign-out-alt"></i> Sair
       </button>
     </li>
-
-
   </ul>
-
 </nav>
 <!-- End of Topbar -->

@@ -7,6 +7,7 @@
   <meta name="author" content="Helvio Seabra de Vilhena Filho">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
   <link href="<?= base_url(['assets', 'css', 'sb-admin.css']) ?>" rel="stylesheet">
+  <link href="<?= base_url(['assets', 'css', 'information.css']) ?>" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link
     href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -16,54 +17,6 @@
 
   <title>Informações do Usuário</title>
 </head>
-
-
-<style>
-  .profile-image {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 20px;
-  }
-
-  .profile-section {
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-  }
-
-  .divider {
-    border-top: 1px solid #ccc;
-    margin: 20px 0;
-  }
-
-  .label {
-    font-weight: bold;
-  }
-
-  .lote {
-    font-size: 1.5rem;
-  }
-
-  .dependents-list {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  .dependents-list li::before {
-    content: "\2192";
-    /* Unicode for right arrow */
-    font-weight: bold;
-    margin-right: 10px;
-  }
-
-  .dependents-list li {
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-</style>
 
 <body id="page-top">
   <div class="container">
@@ -85,9 +38,6 @@
             <div class="d-flex flex-column gap-1">
               <div>
                 <span class="label">Telefone: </span><span><?= $data['phone'] ?></span>
-              </div>
-              <div>
-                <span class="label">CPF: </span><span><?= $data['cpf'] ?></span>
               </div>
               <div>
                 <span class="label">Nascimento: </span><span><?= $data['birth_date'] ?></span>

@@ -59,13 +59,12 @@ class Chacreamento extends BaseController
       'name' => $user->name,
       'lote' => $plotsString,
       'phone' => $user->phone,
-      'cpf' => $user->cpf,
       'birth_date' => $user->birth_date,
       'dependents' => $dependentsFormatted,
     ];
 
     $headerData['data'] = $data;
 
-    return view('index', $headerData);
+    return view('information', $headerData);
   }
 }

@@ -149,7 +149,7 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-primary">Todos os Usuários</h6>
           <span class="d-flex flex-row align-items-center">
-            <form id="searchForm" method="GET" action="<?= base_url('home') ?>" class="d-flex">
+            <form id="searchForm" method="GET" action="<?= base_url('user') ?>" class="d-flex">
               <input class="form-control form-control-sm me-2" id="searchInput" type="text" name="search" placeholder="Pesquisar Usuário" value="<?= isset($search) ? esc($search) : '' ?>" />
               <button type="submit" class="btn btn-primary btn-sm" id="searchButton"><i class="fas fa-search"></i></button>
             </form>

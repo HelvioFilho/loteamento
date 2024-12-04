@@ -61,8 +61,6 @@ class Home extends BaseController
         return view('login');
     }
 
-
-
     public function logout()
     {
         helper('cookie');

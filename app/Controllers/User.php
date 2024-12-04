@@ -20,22 +20,28 @@ class User extends BaseController
 
     if ($search) {
 
-      $usersModel->groupStart()
-        ->orLike('name', $search)
-        ->orLike('cpf', $cpfSearch)
-        ->groupEnd();
+      if ($search) {
+        // Verifica se a pesquisa contém apenas números (possível CPF)
+        if (is_numeric($cpfSearch) && strlen($cpfSearch) > 0) {
+          // Se for números, realiza a busca apenas pelo CPF
+          $usersModel->like('cpf', $cpfSearch);
+        } else {
+          // Se não for números, realiza a busca apenas pelo nome
+          $usersModel->like('name', $search);
+        }
+      }
     }
 
     $users = $usersModel->select('id, name, email, phone, cpf, birth_date, address, id_code, image')->orderBy('id', 'DESC')->paginate(5);
 
     $headerData = [
-      'title' => 'Home',
+      'title' => 'Usuários',
       'users' => $users,
       'pager' => $usersModel->pager,
       'search' => $search,
     ];
 
-    return view('home', $headerData);
+    return view('user', $headerData);
   }
 
   public function createUser()
@@ -58,7 +64,7 @@ class User extends BaseController
 
     if ($existingUser) {
       // Se o CPF já estiver cadastrado, redirecionar com uma mensagem de erro
-      return redirect()->route('home')->with('error', 'O CPF informado já está cadastrado no sistema. Por favor, verifique as informações.');
+      return redirect()->route('user')->with('error', 'O CPF informado já está cadastrado no sistema. Por favor, verifique as informações.');
     }
 
     $data['id_code'] = $usersModel->generateIdCode($data['cpf'], mb_url_title($data['name'], ' ', true));
@@ -68,7 +74,7 @@ class User extends BaseController
     $response = $qrCodeModel->generateCode($urlDestination, './images/qrcode/qrcode' . $data['id_code'] . '.png', '');
 
     if (!$response) {
-      return redirect()->route('home')->with('error', 'Erro ao gerar o QrCode, tente novamente mais tarde ou contate o administrador do sistema');
+      return redirect()->route('user')->with('error', 'Erro ao gerar o QrCode, tente novamente mais tarde ou contate o administrador do sistema');
     }
 
     $img = $this->request->getFile('image');
@@ -81,7 +87,7 @@ class User extends BaseController
         $data['image'] = $result['imageName'];
       } else {
         $saveImage->cleanTempFolder();
-        return redirect()->route('home')->with('error', 'Não foi possivel salvar a imagem, verifique a extensão da imagem ou tente novamente!');
+        return redirect()->route('user')->with('error', 'Não foi possivel salvar a imagem, verifique a extensão da imagem ou tente novamente!');
       }
     }
 
@@ -94,9 +100,9 @@ class User extends BaseController
 
     try {
       $usersModel->insert($data);
-      return redirect()->route('home')->with('success', 'Usuário cadastrado com sucesso!');
+      return redirect()->route('user')->with('success', 'Usuário cadastrado com sucesso!');
     } catch (\Exception $e) {
-      return redirect()->route('home')->with('error', 'Não foi possivel salvar a imagem, verifique a extensão da imagem ou tente novamente!');
+      return redirect()->route('user')->with('error', 'Não foi possivel salvar a imagem, verifique a extensão da imagem ou tente novamente!');
     }
   }
 
@@ -186,7 +192,7 @@ class User extends BaseController
 
     if (!$user) {
       // Usuário não encontrado
-      return redirect()->route('home')->with('error', 'Usuário não encontrado.');
+      return redirect()->route('user')->with('error', 'Usuário não encontrado.');
     }
 
     // Etapa 1: Obter os lotes e dependentes do usuário
@@ -217,9 +223,9 @@ class User extends BaseController
     // Etapa 6: Excluir o próprio usuário
     try {
       $userModel->delete($id);
-      return redirect()->route('home')->with('success', 'Usuário excluído com sucesso!');
+      return redirect()->route('user')->with('success', 'Usuário excluído com sucesso!');
     } catch (\Exception $e) {
-      return redirect()->route('home')->with('error', 'Erro ao excluir o usuário. Por favor, tente novamente.');
+      return redirect()->route('user')->with('error', 'Erro ao excluir o usuário. Por favor, tente novamente.');
     }
   }
 

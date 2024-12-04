@@ -15,6 +15,47 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
   <?= $this->renderSection('style') ?>
+  <style>
+    .btn-back {
+      margin-top: 15px;
+      width: 40px;
+      /* Ajusta o tamanho do botão */
+      height: 40px;
+      /* Mantém o botão em um formato quadrado */
+      border-radius: 50%;
+      /* Torna o botão redondo */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #6c757d;
+      /* Cor de fundo (similar ao btn-secondary do Bootstrap) */
+      color: #ffffff;
+      /* Cor do ícone */
+      border: none;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .btn-back,
+    .btn-back:hover,
+    .btn-back:active,
+    .btn-back:focus {
+      text-decoration: none;
+
+    }
+
+    .btn-back:hover {
+      background-color: #5a6268;
+      /* Cor um pouco mais escura ao passar o mouse */
+      transform: scale(1.1);
+      /* Levemente aumenta o botão ao passar o mouse */
+    }
+
+    .btn-back:focus,
+    .btn-back:active {
+      outline: none;
+      box-shadow: none;
+    }
+  </style>
 
   <title><?= esc($title) ?></title>
 </head>
