@@ -47,7 +47,6 @@ class Dependents extends BaseController
   {
 
     $dependentsModel = new DependentsModel();
-    $usersModel = new UsersModel();
 
     // Pega os dados do formulário
     $name = $this->request->getPost('name');
@@ -63,7 +62,7 @@ class Dependents extends BaseController
       $dependentsModel->insert([
         'user_id' => $id,
         'name' => $name,
-        'birth_date' => $birthDate ? $usersModel->formatDate($birthDate) ?? '' : null
+        'birth_date' => $birthDate ? $dependentsModel->formatDate($birthDate) ?? '' : null
       ]);
 
       return redirect()->to('/dependentes/gerenciar/' . $id)->with('message', 'Dependente cadastrado com sucesso.');
@@ -87,7 +86,7 @@ class Dependents extends BaseController
   public function updateDependent($id)
   {
     $dependentsModel = new DependentsModel();
-    $usersModel = new UsersModel();
+
     // Obtém os dados do formulário
     $name = $this->request->getPost('name');
     $birthDate = $this->request->getPost('birth_date');
@@ -101,7 +100,7 @@ class Dependents extends BaseController
       // Atualiza os dados do dependente
       $dependentsModel->update($id, [
         'name' => $name,
-        'birth_date' => $birthDate ? $usersModel->formatDate($birthDate) ?? '' : null
+        'birth_date' => $birthDate ? $dependentsModel->formatDate($birthDate) ?? '' : null
       ]);
 
       return $this->response->setJSON(['success' => true, 'message' => 'Dependente atualizado com sucesso.']);

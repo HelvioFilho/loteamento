@@ -18,7 +18,7 @@
           </div>
           <div class="col-12 col-md-2 mb-3">
             <label for="inputBirthDate" class="form-label">Nascimento</label>
-            <input type="text" class="form-control" id="inputBirthDate" name="birth_date" required>
+            <input type="text" class="form-control" id="inputBirthDate" name="birth_date">
             <div class="invalid-feedback">Data de nascimento inválida.</div>
           </div>
         </div>
@@ -42,9 +42,10 @@
                   <span class="dependent-info" data-dependent-id="<?= $dependent->id ?>">
                     <!-- Campos de visualização -->
                     <span class="dependent-name"><?= esc($dependent->name) ?></span>
-                    <span class="divider"> - </span>
-                    <span class="birth-date"><?= esc($dependent->birth_date) ?></span>
-
+                    <?php if ($dependent->birth_date): ?>
+                      <span class="divider"> - </span>
+                      <span class="birth-date"><?= esc($dependent->birth_date) ?></span>
+                    <?php endif; ?>
                     <!-- Campos de edição (inicialmente ocultos) -->
                     <div class="edit-fields d-none gap-2 flex-column">
                       <input type="text" class="form-control form-control-sm edit-dependent-name" value="<?= esc($dependent->name) ?>" />
@@ -192,11 +193,13 @@ if (session()->has('message')) {
         $('#dependentName').removeClass('is-invalid').addClass('is-valid');
       }
 
-      if (!isValidDate(birthDateValue)) {
-        $('#inputBirthDate').addClass('is-invalid');
-        isValid = false;
-      } else {
-        $('#inputBirthDate').removeClass('is-invalid').addClass('is-valid');
+      if (birthDateValue !== "") {
+        if (!isValidDate(birthDateValue)) {
+          $('#inputBirthDate').addClass('is-invalid');
+          isValid = false;
+        } else {
+          $('#inputBirthDate').removeClass('is-invalid').addClass('is-valid');
+        }
       }
 
       // Se os campos não forem válidos, não enviar o formulário
