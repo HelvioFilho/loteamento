@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\PaymentListModel;
+use App\Models\PlotsModel;
 use App\Models\UserPaymentModel;
 use App\Models\UsersModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -140,6 +141,7 @@ class PaymentList extends BaseController
         $paymentListModel = new PaymentListModel();
         $userPaymentModel = new UserPaymentModel();
         $usersModel = new UsersModel();
+        $plotsModel = new PlotsModel();
 
         // Busca a lista de pagamentos específica pelo ID
         $list = $paymentListModel->find($listId);
@@ -150,7 +152,20 @@ class PaymentList extends BaseController
         }
 
         // Busca todos os usuários do sistema
-        $allUsers = $usersModel->findAll();
+        $allUsers = $usersModel
+            ->orderBy('name', 'ASC')
+            ->findAll();
+
+        foreach ($allUsers as $user) {
+            // Buscar somente os dados necessários do plot (ex: plot_number, side)
+            $plots = $plotsModel
+                ->select('plot_number, side')
+                ->where('user_id', $user->id)
+                ->findAll();
+
+            // 3. Anexar em uma propriedade do objeto user
+            $user->plots = $plots;
+        }
 
         // Busca os pagamentos existentes para a lista atual
         $userPayments = $userPaymentModel->where('payment_list_id', $listId)->findAll();
@@ -166,6 +181,37 @@ class PaymentList extends BaseController
         foreach ($allUsers as $user) {
             // Verificar se o usuário já possui um registro de pagamento
             $user->paid = $userPaymentsMap[$user->id] ?? false;
+
+            $leftSidePlots = [];
+            $rightSidePlots = [];
+
+            foreach ($user->plots as $plot) {
+                if (strtolower($plot->side) === 'esquerdo') {
+                    $leftSidePlots[] = $plot->plot_number;
+                } elseif (strtolower($plot->side) === 'direito') {
+                    $rightSidePlots[] = $plot->plot_number;
+                }
+            }
+
+            $leftStr = implode(', ', $leftSidePlots);
+            $rightStr = implode(', ', $rightSidePlots);
+
+            if ($leftStr && $rightStr) {
+                // Se ambos existem
+                $plotsString = $leftStr . ' esquerda - ' . $rightStr . ' direita';
+            } elseif ($leftStr) {
+                // Só tem esquerda
+                $plotsString = $leftStr . ' esquerda';
+            } elseif ($rightStr) {
+                // Só tem direita
+                $plotsString = $rightStr . ' direita';
+            } else {
+                // Não tem lote de nenhum lado (ou array vazio)
+                $plotsString = '';
+            }
+
+            $user->plots = $plotsString;
+
             $users[] = $user;
         }
 

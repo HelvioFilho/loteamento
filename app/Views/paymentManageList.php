@@ -41,7 +41,7 @@
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th class="d-none d-md-table-cell">E-mail</th>
+                  <th class="d-none d-md-table-cell">Lotes</th>
                   <th>Pago</th>
                 </tr>
               </thead>
@@ -49,7 +49,7 @@
                 <?php foreach ($users as $user): ?>
                   <tr>
                     <td><?= esc($user->name) ?></td>
-                    <td class="d-none d-md-table-cell"><?= esc($user->email) ?></td>
+                    <td class="d-none d-md-table-cell"><?= esc($user->plots) ?></td>
                     <td>
                       <div class="d-flex justify-content-center align-items-center">
                         <input type="checkbox" class="checkbox-paid" data-user-id="<?= $user->id ?>" <?= $user->paid ? 'checked' : '' ?>>
