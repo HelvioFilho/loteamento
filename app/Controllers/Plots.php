@@ -10,7 +10,7 @@ class Plots extends BaseController
   public function index()
   {
     $usersModel = new UsersModel();
-    $users = $usersModel->orderBy('id', 'DESC')->findAll();
+    $users = $usersModel->orderBy('name', 'ASC')->findAll();
 
     $headerData = [
       'title' => 'Lotes',
