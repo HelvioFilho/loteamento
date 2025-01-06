@@ -10,7 +10,7 @@ class Dependents extends BaseController
   public function index()
   {
     $usersModel = new UsersModel();
-    $users = $usersModel->orderBy('id', 'DESC')->findAll();
+    $users = $usersModel->orderBy('name', 'ASC')->findAll();
 
     $headerData = [
       'title' => 'Dependentes',
@@ -47,13 +47,14 @@ class Dependents extends BaseController
   {
 
     $dependentsModel = new DependentsModel();
+    $usersModel = new UsersModel();
 
     // Pega os dados do formulário
     $name = $this->request->getPost('name');
     $birthDate = $this->request->getPost('birth_date');
 
     // Valida os dados
-    if (empty($name) || empty($birthDate)) {
+    if (empty($name)) {
       return redirect()->to('/dependentes/gerenciar/' . $id)->with('message', 'Preencha todos os campos');
     }
 
@@ -62,7 +63,7 @@ class Dependents extends BaseController
       $dependentsModel->insert([
         'user_id' => $id,
         'name' => $name,
-        'birth_date' => date('Y-m-d', strtotime($birthDate))
+        'birth_date' => $birthDate ? $usersModel->formatDate($birthDate) ?? '' : null
       ]);
 
       return redirect()->to('/dependentes/gerenciar/' . $id)->with('message', 'Dependente cadastrado com sucesso.');
@@ -86,13 +87,13 @@ class Dependents extends BaseController
   public function updateDependent($id)
   {
     $dependentsModel = new DependentsModel();
-
+    $usersModel = new UsersModel();
     // Obtém os dados do formulário
     $name = $this->request->getPost('name');
     $birthDate = $this->request->getPost('birth_date');
 
     // Valida os dados
-    if (empty($name) || empty($birthDate)) {
+    if (empty($name)) {
       return $this->response->setJSON(['success' => false, 'message' => 'Preencha todos os campos.']);
     }
 
@@ -100,7 +101,7 @@ class Dependents extends BaseController
       // Atualiza os dados do dependente
       $dependentsModel->update($id, [
         'name' => $name,
-        'birth_date' => date('Y-m-d', strtotime($birthDate))
+        'birth_date' => $birthDate ? $usersModel->formatDate($birthDate) ?? '' : null
       ]);
 
       return $this->response->setJSON(['success' => true, 'message' => 'Dependente atualizado com sucesso.']);
