@@ -10,6 +10,8 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+
 class PaymentList extends BaseController
 {
     public function index()
@@ -378,6 +380,144 @@ class PaymentList extends BaseController
 
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
+        exit;
+    }
+
+    public function exportPdf($listId)
+    {
+        $paymentListModel = new PaymentListModel();
+        $userPaymentModel = new UserPaymentModel();
+        $usersModel = new UsersModel();
+        $plotsModel = new PlotsModel();
+
+        $list = $paymentListModel->find($listId);
+        if (!$list) {
+            return redirect()->to('/payments')->with('message', 'Lista de pagamentos não encontrada.');
+        }
+
+        // Busca todos os usuários e seus status de pagamento (mesmo código do exportExcel)...
+        $allUsers = $usersModel->orderBy('name', 'ASC')->findAll();
+        $userPayments = $userPaymentModel->where('payment_list_id', $listId)->findAll();
+
+        // Map de pagamentos
+        $userPaymentsMap = [];
+        foreach ($userPayments as $userPayment) {
+            $userPaymentsMap[$userPayment->user_id] = $userPayment->paid;
+        }
+
+        // Monta Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // -- Cabeçalho
+        $sheet->setCellValue('A1', 'Nome');
+        $sheet->setCellValue('B1', 'Lotes');
+        $sheet->setCellValue('C1', 'Pago');
+
+        // -- Aplicar estilos ao cabeçalho
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'], // Cor da fonte
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'color' => ['rgb' => '4F81BD'], // Azul, por exemplo
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+        ];
+        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
+
+        // -- Estilo para pago / não pago
+        $stylePaid = [
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'color' => ['rgb' => '39FF14'],
+            ],
+        ];
+        $styleNotPaid = [
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'color' => ['rgb' => 'FF0000'],
+            ],
+        ];
+
+        // -- Preenche o conteúdo
+        $row = 2;
+        foreach ($allUsers as $user) {
+            $isPaid = isset($userPaymentsMap[$user->id]) && $userPaymentsMap[$user->id] ? 'Sim' : 'Não';
+
+            // Pegar plots...
+            $plots = $plotsModel->select('plot_number, side')->where('user_id', $user->id)->findAll();
+
+            // Separar lados
+            $leftSidePlots  = [];
+            $rightSidePlots = [];
+
+            foreach ($plots as $plot) {
+                $sideLower = strtolower($plot->side);
+                if ($sideLower === 'esquerdo') {
+                    $leftSidePlots[] = $plot->plot_number;
+                } elseif ($sideLower === 'direito') {
+                    $rightSidePlots[] = $plot->plot_number;
+                }
+            }
+
+            $leftStr  = implode(', ', $leftSidePlots);
+            $rightStr = implode(', ', $rightSidePlots);
+
+            if ($leftStr && $rightStr) {
+                $lotsString = $leftStr . ' esquerdo - ' . $rightStr . ' direito';
+            } elseif ($leftStr) {
+                $lotsString = $leftStr . ' esquerdo';
+            } elseif ($rightStr) {
+                $lotsString = $rightStr . ' direito';
+            } else {
+                $lotsString = '';
+            }
+
+            $sheet->setCellValue("A{$row}", $user->name);
+            $sheet->setCellValue("B{$row}", $lotsString);
+            $sheet->setCellValue("C{$row}", $isPaid);
+
+            // Cor da linha conforme sim ou não
+            if ($isPaid === 'Sim') {
+                $sheet->getStyle("A{$row}:C{$row}")->applyFromArray($stylePaid);
+            } else {
+                $sheet->getStyle("A{$row}:C{$row}")->applyFromArray($styleNotPaid);
+            }
+
+            $row++;
+        }
+
+        // -- Ajustar tamanho das colunas
+        foreach (range('A', 'C') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Ajuste de página para PDF, se quiser
+        $sheet->getPageSetup()
+            ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE)
+            ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
+
+        // Cria o Writer específico do dompdf (sem setPdfRendererName)
+        $pdfWriter = new \PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf($spreadsheet);
+
+        // (Opcional) Ajustar a planilha (se quiser forçar a planilha 0)
+        // $pdfWriter->setSheetIndex(0);
+
+        // Define o nome do arquivo (sem .pdf ainda)
+        $filename = 'pagamentos_' . $list->name . '_' . $list->month . '_' . $list->year;
+
+        // Envia headers para o navegador baixar como PDF
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment;filename="' . $filename . '.pdf"');
+        header('Cache-Control: max-age=0');
+
+        // Salva direto no output
+        $pdfWriter->save('php://output');
         exit;
     }
 }

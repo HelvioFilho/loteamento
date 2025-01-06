@@ -24,9 +24,14 @@
   <div class="d-flex align-items-center justify-content-between mb-4 flex-column flex-md-row gap-3">
     <h1 class="h3 mb-0 text-gray-800"><?= esc($list->name . ' (' . $list->month . '/' . $list->year . ')') ?></h1>
     <!-- espaço para o botão do excel -->
-    <a href="<?= base_url('payments/exportExcel/' . $list->id) ?>" class="btn btn-success d-flex justify-content-center align-items-center gap-2">
-      <i class="fas fa-file-excel"></i> <span>Gerar Excel</span>
-    </a>
+    <div class="d-flex gap-2">
+      <a href="<?= base_url('payments/exportExcel/' . $list->id) ?>" class="btn btn-success d-flex justify-content-center align-items-center gap-2">
+        <i class="fas fa-file-excel"></i> <span>Gerar Excel</span>
+      </a>
+      <a href="<?= base_url('payments/exportPdf/' . $list->id) ?>" class="btn btn-danger d-flex justify-content-center align-items-center gap-2">
+        <i class="fas fa-file-pdf"></i> <span>Gerar PDF</span>
+      </a>
+    </div>
     <button id="savePaymentsBtn" class="btn btn-primary d-flex justify-content-center align-items-center gap-2">
       <i class="fas fa-save"></i> <span> Salvar Pagamentos </span>
     </button>

@@ -33,6 +33,7 @@ $routes->group('', ['filter' => 'auth'], function (RouteCollection $routes) {
   $routes->post('/payments/editList', 'PaymentList::editList');
   $routes->get('/payments/delete/(:num)', 'PaymentList::deleteList/$1');
   $routes->get('/payments/exportExcel/(:num)', 'PaymentList::exportExcel/$1');
+  $routes->get('/payments/exportPdf/(:num)', 'PaymentList::exportPdf/$1');
 
   # Dependents
   $routes->get('/dependentes', 'Dependents::index');
