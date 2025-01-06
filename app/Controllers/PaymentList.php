@@ -8,6 +8,7 @@ use App\Models\UserPaymentModel;
 use App\Models\UsersModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class PaymentList extends BaseController
 {
@@ -251,6 +252,7 @@ class PaymentList extends BaseController
         $paymentListModel = new PaymentListModel();
         $userPaymentModel = new UserPaymentModel();
         $usersModel = new UsersModel();
+        $plotsModel = new PlotsModel();
 
         // Busca a lista de pagamentos específica pelo ID
         $list = $paymentListModel->find($listId);
@@ -260,7 +262,7 @@ class PaymentList extends BaseController
         }
 
         // Busca todos os usuários e seus status de pagamento
-        $allUsers = $usersModel->findAll();
+        $allUsers = $usersModel->orderBy('name', 'ASC')->findAll();
         $userPayments = $userPaymentModel->where('payment_list_id', $listId)->findAll();
 
         $userPaymentsMap = [];
@@ -274,14 +276,96 @@ class PaymentList extends BaseController
 
         // Define o cabeçalho
         $sheet->setCellValue('A1', 'Nome');
-        $sheet->setCellValue('B1', 'Pago');
+        $sheet->setCellValue('B1', 'Lotes');
+        $sheet->setCellValue('C1', 'Pago');
+
+        // Arrays de estilo para “pago” e “não pago”
+        $stylePaid = [
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'color' => ['rgb' => '39FF14'], // verde claro
+            ],
+        ];
+        $styleNotPaid = [
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'color' => ['rgb' => 'FF0000'], // vermelho claro
+            ],
+        ];
+
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'], // Cor da fonte
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'color' => ['rgb' => '4F81BD'], // Azul, por exemplo
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+            ],
+        ];
+
+        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
 
         // Preenche os dados dos usuários
         $row = 2; // Começa na linha 2 porque a linha 1 é o cabeçalho
         foreach ($allUsers as $user) {
+            // Verifica se está pago (sim ou não)
+            $isPaid = isset($userPaymentsMap[$user->id]) && $userPaymentsMap[$user->id] ? 'Sim' : 'Não';
+
+            // Busca plots do usuário
+            $plots = $plotsModel->select('plot_number, side')->where('user_id', $user->id)->findAll();
+
+            // Agrupa lotes em arrays de esquerda/direita
+            $leftSidePlots  = [];
+            $rightSidePlots = [];
+
+            foreach ($plots as $plot) {
+                $sideLower = strtolower($plot->side);
+                if ($sideLower === 'esquerdo') {
+                    $leftSidePlots[] = $plot->plot_number;
+                } elseif ($sideLower === 'direito') {
+                    $rightSidePlots[] = $plot->plot_number;
+                }
+            }
+
+            // Monta a string final de lotes
+            $leftStr  = implode(', ', $leftSidePlots);
+            $rightStr = implode(', ', $rightSidePlots);
+
+            if ($leftStr && $rightStr) {
+                // Ambos os lados
+                $lotsString = $leftStr . ' esquerdo - ' . $rightStr . ' direito';
+            } elseif ($leftStr) {
+                // Só esquerda
+                $lotsString = $leftStr . ' esquerdo';
+            } elseif ($rightStr) {
+                // Só direita
+                $lotsString = $rightStr . ' direito';
+            } else {
+                // Sem lotes
+                $lotsString = '';
+            }
+
+            // Preenche na planilha
             $sheet->setCellValue('A' . $row, $user->name);
-            $sheet->setCellValue('B' . $row, isset($userPaymentsMap[$user->id]) && $userPaymentsMap[$user->id] ? 'Sim' : 'Não');
+            $sheet->setCellValue('B' . $row, $lotsString);
+            $sheet->setCellValue('C' . $row, $isPaid);
+
+            // Aplica o estilo à linha inteira (A..C) ou às colunas que quiser
+            if ($isPaid === 'Sim') {
+                $sheet->getStyle("A{$row}:C{$row}")->applyFromArray($stylePaid);
+            } else {
+                $sheet->getStyle("A{$row}:C{$row}")->applyFromArray($styleNotPaid);
+            }
+
             $row++;
+        }
+
+        foreach (range('A', 'C') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
         // Define o nome do arquivo
