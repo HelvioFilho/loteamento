@@ -98,13 +98,24 @@
       warningModal.hide();
     });
 
+    function showSavingModal() {
+      $('#modalErrorMessage')
+        .removeClass('text-success text-danger')
+        .addClass('text-info')
+        .text('Salvando...');
+      warningModal.show();
+    }
+
     // Evento ao clicar em "Salvar Pagamentos"
     $('#savePaymentsBtn').click(function() {
       let $button = $(this);
       let payments = [];
 
-      // Bloqueia o botão e mostra a mensagem de "Aguarde..."
-      $button.prop('disabled', true).html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <span>Carregando informações...<span>`);
+      // Bloqueia o botão e mostra a mensagem de "Carregando informações..."
+      $button.prop('disabled', true).html(`
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span>Carregando informações...</span>
+    `);
 
       $('.checkbox-paid').each(function() {
         payments.push({
@@ -123,25 +134,39 @@
         }),
         success: function(response) {
           if (response.success) {
-            // Mensagem de sucesso
-            $('#modalErrorMessage').removeClass('text-danger').addClass('text-success').text('Pagamentos salvos com sucesso!');
+            $('#modalErrorMessage')
+              .removeClass('text-danger')
+              .addClass('text-success')
+              .text('Pagamentos salvos com sucesso!');
           } else {
-            // Mensagem de erro
-            $('#modalErrorMessage').removeClass('text-success').addClass('text-danger').text('Erro ao salvar pagamentos.');
+            $('#modalErrorMessage')
+              .removeClass('text-success')
+              .addClass('text-danger')
+              .text('Erro ao salvar pagamentos.');
           }
-          warningModal.show();
         },
         error: function() {
-          // Mensagem de erro
-          $('#modalErrorMessage').removeClass('text-success').addClass('text-danger').text('Erro ao salvar pagamentos.');
-          warningModal.show();
+          $('#modalErrorMessage')
+            .removeClass('text-success')
+            .addClass('text-danger')
+            .text('Erro ao salvar pagamentos.');
         },
         complete: function() {
-          // Desbloqueia o botão e restaura o texto original
-          $button.prop('disabled', false).html('<i class="fas fa-save"></i> <span>Salvar Pagamentos<span>');
+          $button.prop('disabled', false).html('<i class="fas fa-save"></i> <span>Salvar Pagamentos</span>');
         }
       });
     });
+
+    $(document).on('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault(); // Impede o comportamento padrão do Enter
+        showSavingModal(); // Mostra o modal com a mensagem "Salvando"
+
+        // Simula o clique no botão "Salvar Pagamentos"
+        $('#savePaymentsBtn').trigger('click');
+      }
+    });
+
   });
 </script>
 <?= $this->endSection() ?>
